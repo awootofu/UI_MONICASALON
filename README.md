@@ -2,7 +2,7 @@
 
 Aplikasi **UI-only** untuk Monica Salon, dibangun dengan **.NET MAUI 10** dan **UraniumUI 3.0** sebagai framework presentasi UI. Proyek ini adalah tugas UAS mata kuliah Pemrograman Visual.
 
-> **Scope Phase 1:** hanya 3 halaman Customer UI. **Tidak ada** koneksi database, backend, halaman admin, atau alur checkout. Semua data masih *mock data* (hardcoded di ViewModel).
+> **Scope:** Phase 1 mencakup 3 halaman Customer UI. Phase 2 (Admin) menambahkan **Admin Dashboard** dan **Admin Booking** sebagai perluasan aplikasi. Tidak ada koneksi database/backend; semua data masih *mock data*.
 
 ---
 
@@ -13,8 +13,12 @@ Aplikasi **UI-only** untuk Monica Salon, dibangun dengan **.NET MAUI 10** dan **
 | Login | `Views/LoginPage.xaml` | Onboarding + form login (email & password) dengan validasi |
 | Register | `Views/RegisterPage.xaml` | Form pendaftaran customer (nama, email, telepon, password, konfirmasi, checkbox S&K) |
 | Home Customer | `Views/HomeCustomerPage.xaml` | Dashboard customer: header, search, banner promo, kategori layanan, daftar layanan, bottom navigation, bottom sheet detail layanan |
+| Admin Dashboard | `Views/Admin/AdminDashboardPage.xaml` | Ringkasan operasional: statistik, booking mingguan, pendapatan, booking terbaru |
+| Admin Booking | `Views/Admin/AdminBookingsPage.xaml` | Manajemen booking: pencarian, filter tanggal/status, kartu booking, bottom sheet detail |
 
-Alur navigasi: `LoginPage` → (Login / Daftar) → `RegisterPage` / `HomeCustomerPage`.
+Alur navigasi customer: `LoginPage` → (Login / Daftar) → `RegisterPage` / `HomeCustomerPage`.
+
+Alur navigasi Admin: `LoginPage` → tautan **Masuk sebagai Admin** → `AdminDashboardPage` ↔ `AdminBookingsPage` (bottom navigation).
 
 ---
 
@@ -139,6 +143,14 @@ public class ButtonView : UraniumUI.Material.Controls.ButtonView { }
 ```
 
 Shim ini didaftarkan lewat `AssemblyInfo.cs` (`XmlnsDefinition`) dan handler-nya didaftarkan di `MauiProgram.cs`. Karena mewarisi (`inherit`) kontrol Uranium asli, seluruh perilaku dan tampilan tetap milik UraniumUI.
+
+### Admin UI (Phase 2)
+
+- Layout **mobile-first**: header admin, konten bertumpuk, dan bottom navigation Dashboard / Booking.
+- Komponen bersama di `Controls/Admin/`: `AdminLayout`, `AdminNavigationItem`, `StatCard`, `SectionCard`, `StatusBadge`.
+- Style bersama di `Resources/Styles/AdminStyles.xaml`; warna tetap memakai token dari `Colors.xaml`.
+- Data mock di `Models/Admin/AdminMockData.cs`; ViewModel di `ViewModels/Admin/`.
+- Alur login/register customer tidak diubah; hanya ditambahkan tautan admin di footer login.
 
 ### Palet Warna
 
