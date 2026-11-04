@@ -1,0 +1,26 @@
+# .NET MAUI / Visual Studio
+bin/
+obj/
+.vs/
+*.user
+*.suo
+*.cache
+*.dll.config
+
+# Build results
+[Dd]ebug/
+[Rr]elease/
+artifacts/
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+
+# Rider / VS Code
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

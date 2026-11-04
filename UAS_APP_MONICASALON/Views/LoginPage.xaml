@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<uranium:UraniumContentPage
+    x:Class="UAS_APP_MONICASALON.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+    xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+    xmlns:m="clr-namespace:UAS_APP_MONICASALON.Icons"
+    BackgroundColor="#FAF7F5"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="*,Auto">
+
+    <ScrollView Grid.Row="0">
+        <VerticalStackLayout Padding="20,12,20,12" Spacing="12">
+
+            <!-- Top salon visual -->
+            <Border
+                HeightRequest="220"
+                StrokeShape="RoundRectangle 20"
+                BackgroundColor="#FDECEC"
+                StrokeThickness="0">
+                <Image
+                    Source="banner_aplikasi.png"
+                    Aspect="AspectFit"
+                    HorizontalOptions="Fill"
+                    VerticalOptions="Fill" />
+            </Border>
+
+            <Label
+                Text="Your Ultimate Salon Booking App"
+                FontSize="24"
+                FontAttributes="Bold"
+                TextColor="#1E1E1E"
+                HorizontalTextAlignment="Center"
+                HorizontalOptions="Center"
+                Margin="0,0,0,0" />
+
+            <Label
+                Text="A little care, a lovely you."
+                FontSize="14"
+                TextColor="#757575"
+                HorizontalTextAlignment="Center"
+                HorizontalOptions="Center"
+                Margin="0,0,0,2" />
+
+            <!-- Login form -->
+            <input:FormView
+                SubmitCommand="{Binding LoginCommand}"
+                Spacing="14">
+
+                <material:TextField
+                    Title="Email atau No. HP"
+                    Text="{Binding Identifier}"
+                    AccentColor="#D9534F"
+                    BorderColor="#EFE6E4"
+                    CornerRadius="12"
+                    FontSize="14">
+                    <material:TextField.Icon>
+                        <FontImageSource
+                            FontFamily="MaterialOutlined"
+                            Glyph="{x:Static m:MaterialRegular.Person}"
+                            Color="#757575"
+                            Size="22" />
+                    </material:TextField.Icon>
+                    <validation:RequiredValidation Message="Email atau Nomor HP wajib diisi" />
+                </material:TextField>
+
+                <material:TextField
+                    Title="Password"
+                    Text="{Binding Password}"
+                    IsPassword="True"
+                    AccentColor="#D9534F"
+                    BorderColor="#EFE6E4"
+                    CornerRadius="12"
+                    FontSize="14">
+                    <material:TextField.Icon>
+                        <FontImageSource
+                            FontFamily="MaterialOutlined"
+                            Glyph="{x:Static m:MaterialRegular.Lock}"
+                            Color="#757575"
+                            Size="22" />
+                    </material:TextField.Icon>
+                    <material:TextField.Attachments>
+                        <material:TextFieldPasswordShowHideAttachment />
+                    </material:TextField.Attachments>
+                    <validation:RequiredValidation Message="Password wajib diisi" />
+                </material:TextField>
+
+                <Button
+                    Text="Mulai Sekarang / Masuk"
+                    StyleClass="FilledButton"
+                    input:FormView.IsSubmitButton="True"
+                    BackgroundColor="#D9534F"
+                    TextColor="White"
+                    CornerRadius="24"
+                    HeightRequest="52"
+                    FontAttributes="Bold"
+                    FontSize="15"
+                    Margin="0,4,0,0" />
+            </input:FormView>
+
+            <Label
+                Text="Lupa Password?"
+                TextColor="#D9534F"
+                FontSize="13"
+                FontAttributes="Bold"
+                HorizontalOptions="End"
+                Margin="0,-8,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Command="{Binding ForgotPasswordCommand}" />
+                </Label.GestureRecognizers>
+            </Label>
+
+            <Label
+                Text="{Binding ErrorMessage}"
+                IsVisible="{Binding HasError}"
+                TextColor="#B3261E"
+                FontSize="12"
+                HorizontalTextAlignment="Center"
+                Margin="0,2,0,0" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+    <!-- Register navigation (pinned so it stays reachable on short windows) -->
+    <HorizontalStackLayout
+        Grid.Row="1"
+        HorizontalOptions="Center"
+        Spacing="2"
+        Padding="0,8,0,12"
+        BackgroundColor="#FAF7F5">
+        <Label
+            Text="Belum punya akun? "
+            TextColor="#757575"
+            FontSize="14"
+            VerticalTextAlignment="Center" />
+        <Label
+            Text="Daftar"
+            TextColor="#D9534F"
+            FontSize="14"
+            FontAttributes="Bold"
+            VerticalTextAlignment="Center">
+            <Label.GestureRecognizers>
+                <TapGestureRecognizer Command="{Binding GoToRegisterCommand}" />
+            </Label.GestureRecognizers>
+        </Label>
+    </HorizontalStackLayout>
+
+    </Grid>
+
+</uranium:UraniumContentPage>

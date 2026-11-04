@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<uranium:UraniumContentPage
+    x:Class="UAS_APP_MONICASALON.Views.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+    xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
+    xmlns:input="clr-namespace:InputKit.Shared.Controls;assembly=InputKit.Maui"
+    xmlns:validation="clr-namespace:InputKit.Shared.Validations;assembly=InputKit.Maui"
+    xmlns:m="clr-namespace:UAS_APP_MONICASALON.Icons"
+    BackgroundColor="#FAF7F5"
+    NavigationPage.HasNavigationBar="False"
+    Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,16,20,28" Spacing="18">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                <uranium:ButtonView
+                    WidthRequest="40"
+                    HeightRequest="40"
+                    BackgroundColor="#FFFFFF"
+                    Stroke="#EFE6E4"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 20"
+                    Padding="0"
+                    VerticalOptions="Start"
+                    SemanticProperties.Description="Kembali"
+                    TappedCommand="{Binding BackCommand}">
+                    <Image
+                        WidthRequest="21"
+                        HeightRequest="21"
+                        InputTransparent="True"
+                        HorizontalOptions="Center"
+                        VerticalOptions="Center">
+                        <Image.Source>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Arrow_back}"
+                                Color="#1E1E1E"
+                                Size="21" />
+                        </Image.Source>
+                    </Image>
+                </uranium:ButtonView>
+
+                <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                    <Label
+                        Text="Buat Akun Cantikmu."
+                        FontSize="24"
+                        FontAttributes="Bold"
+                        TextColor="#1E1E1E" />
+                    <Label
+                        Text="Isi data di bawah untuk mulai booking dan melihat buku gaya."
+                        FontSize="14"
+                        TextColor="#757575"
+                        LineBreakMode="WordWrap" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <!-- Form card -->
+            <Border
+                BackgroundColor="#FFFFFF"
+                Stroke="#EFE6E4"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 16"
+                Padding="20">
+                <input:FormView
+                    SubmitCommand="{Binding RegisterCommand}"
+                    Spacing="14">
+
+                    <material:TextField
+                        Title="Nama lengkap (cth: Bella Anisa)"
+                        Text="{Binding FullName}"
+                        AccentColor="#D9534F"
+                        BorderColor="#EFE6E4"
+                        CornerRadius="12"
+                        FontSize="14">
+                        <material:TextField.Icon>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Badge}"
+                                Color="#757575"
+                                Size="22" />
+                        </material:TextField.Icon>
+                        <validation:RequiredValidation Message="Nama lengkap wajib diisi" />
+                    </material:TextField>
+
+                    <material:TextField
+                        Title="No. HP (08xx xxxx xxxx)"
+                        Keyboard="Telephone"
+                        Text="{Binding PhoneNumber}"
+                        AccentColor="#D9534F"
+                        BorderColor="#EFE6E4"
+                        CornerRadius="12"
+                        FontSize="14">
+                        <material:TextField.Icon>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Phone_iphone}"
+                                Color="#757575"
+                                Size="22" />
+                        </material:TextField.Icon>
+                        <validation:RequiredValidation Message="Nomor HP wajib diisi" />
+                        <validation:DigitsOnlyValidation Message="Hanya boleh angka" />
+                    </material:TextField>
+
+                    <material:TextField
+                        Title="Email (nama@email.com)"
+                        Keyboard="Email"
+                        Text="{Binding Email}"
+                        AccentColor="#D9534F"
+                        BorderColor="#EFE6E4"
+                        CornerRadius="12"
+                        FontSize="14">
+                        <material:TextField.Icon>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Mail}"
+                                Color="#757575"
+                                Size="22" />
+                        </material:TextField.Icon>
+                        <validation:RequiredValidation Message="Email wajib diisi" />
+                        <validation:RegexValidation
+                            Pattern="{x:Static input:AdvancedEntry.REGEX_EMAIL}"
+                            Message="Format email tidak valid" />
+                    </material:TextField>
+
+                    <material:TextField
+                        Title="Password (Minimal 6 karakter)"
+                        IsPassword="True"
+                        Text="{Binding Password}"
+                        AccentColor="#D9534F"
+                        BorderColor="#EFE6E4"
+                        CornerRadius="12"
+                        FontSize="14">
+                        <material:TextField.Icon>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Lock}"
+                                Color="#757575"
+                                Size="22" />
+                        </material:TextField.Icon>
+                        <material:TextField.Attachments>
+                            <material:TextFieldPasswordShowHideAttachment />
+                        </material:TextField.Attachments>
+                        <validation:MinLengthValidation MinLength="6" Message="Minimal 6 karakter" />
+                    </material:TextField>
+
+                    <material:TextField
+                        Title="Konfirmasi password"
+                        IsPassword="True"
+                        Text="{Binding ConfirmPassword}"
+                        AccentColor="#D9534F"
+                        BorderColor="#EFE6E4"
+                        CornerRadius="12"
+                        FontSize="14">
+                        <material:TextField.Icon>
+                            <FontImageSource
+                                FontFamily="MaterialOutlined"
+                                Glyph="{x:Static m:MaterialRegular.Lock_reset}"
+                                Color="#757575"
+                                Size="22" />
+                        </material:TextField.Icon>
+                        <material:TextField.Attachments>
+                            <material:TextFieldPasswordShowHideAttachment />
+                        </material:TextField.Attachments>
+                        <validation:RequiredValidation Message="Ulangi password Anda" />
+                    </material:TextField>
+
+                    <material:CheckBox
+                        Text="Saya setuju dengan syarat &amp; ketentuan."
+                        Color="#D9534F"
+                        TextColor="#1E1E1E"
+                        TextFontSize="13"
+                        IsChecked="{Binding IsTermsAccepted, Mode=TwoWay}"
+                        Margin="0,2,0,0" />
+
+                    <Button
+                        Text="Daftar"
+                        StyleClass="FilledButton"
+                        input:FormView.IsSubmitButton="True"
+                        BackgroundColor="#D9534F"
+                        TextColor="White"
+                        CornerRadius="24"
+                        HeightRequest="52"
+                        FontAttributes="Bold"
+                        FontSize="15"
+                        Margin="0,8,0,0" />
+
+                    <Label
+                        Text="{Binding ErrorMessage}"
+                        IsVisible="{Binding HasError}"
+                        TextColor="#B3261E"
+                        FontSize="12"
+                        HorizontalTextAlignment="Center"
+                        Margin="0,2,0,0" />
+                </input:FormView>
+            </Border>
+
+            <!-- Login navigation -->
+            <HorizontalStackLayout
+                HorizontalOptions="Center"
+                Spacing="2"
+                Margin="0,0,0,8">
+                <Label
+                    Text="Sudah punya akun? "
+                    TextColor="#757575"
+                    FontSize="14"
+                    VerticalTextAlignment="Center" />
+                <Label
+                    Text="Login"
+                    TextColor="#D9534F"
+                    FontSize="14"
+                    FontAttributes="Bold"
+                    VerticalTextAlignment="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding GoToLoginCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
+            </HorizontalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</uranium:UraniumContentPage>
