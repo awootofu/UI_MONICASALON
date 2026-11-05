@@ -19,6 +19,11 @@ public static class AdminIcons
     public const string Scissors = MaterialOutlined.Content_cut;
     public const string Close = MaterialOutlined.Close;
     public const string Add = MaterialOutlined.Add;
+    public const string ExpandMore = MaterialOutlined.Expand_more;
+    public const string SlotLocked = MaterialOutlined.Lock;
     public const string EmptyBookings = MaterialOutlined.Event_busy;
     public const string AdminAccess = MaterialOutlined.Admin_panel_settings;
+    public const string Customers = MaterialOutlined.Group;
+    public const string Reports = MaterialOutlined.Analytics;
+    public const string Settings = MaterialOutlined.Settings;
 }

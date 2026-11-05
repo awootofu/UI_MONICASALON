@@ -138,7 +138,7 @@
             <Grid
                 x:Name="TabContainer"
                 Grid.Row="1"
-                ColumnDefinitions="*,*"
+                ColumnDefinitions="*,*,*,*,*"
                 Padding="10,2">
                 <admin:AdminNavigationItem
                     Title="Dashboard"
@@ -151,6 +151,24 @@
                     Title="Booking"
                     IconGlyph="{x:Static icons:AdminIcons.Bookings}"
                     Route="AdminBookingsPage"
+                    Command="{Binding NavigateCommand, Source={x:Reference LayoutRoot}}" />
+
+                <admin:AdminNavigationItem
+                    Grid.Column="2"
+                    Title="Customers"
+                    IconGlyph="{x:Static icons:AdminIcons.Customers}"
+                    Command="{Binding NavigateCommand, Source={x:Reference LayoutRoot}}" />
+
+                <admin:AdminNavigationItem
+                    Grid.Column="3"
+                    Title="Reports"
+                    IconGlyph="{x:Static icons:AdminIcons.Reports}"
+                    Command="{Binding NavigateCommand, Source={x:Reference LayoutRoot}}" />
+
+                <admin:AdminNavigationItem
+                    Grid.Column="4"
+                    Title="Settings"
+                    IconGlyph="{x:Static icons:AdminIcons.Settings}"
                     Command="{Binding NavigateCommand, Source={x:Reference LayoutRoot}}" />
             </Grid>
         </Grid>

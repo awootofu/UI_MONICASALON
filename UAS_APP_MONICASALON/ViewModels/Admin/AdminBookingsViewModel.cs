@@ -1,4 +1,6 @@
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using UAS_APP_MONICASALON.Models.Admin;
@@ -7,25 +9,22 @@ namespace UAS_APP_MONICASALON.ViewModels.Admin;
 
 public partial class AdminBookingsViewModel : ObservableObject
 {
-    private readonly List<AdminBooking> _allBookings;
+    private static readonly CultureInfo IndonesianCulture = CultureInfo.GetCultureInfo("id-ID");
 
-    public IList<string> DateFilters { get; } = new List<string>
-    {
-        "Semua Tanggal",
-        "Hari Ini",
-        "Minggu Ini",
-        "Bulan Ini"
-    };
+    private readonly List<AdminBooking> _allBookings;
 
     public IList<string> StatusFilters { get; } = new List<string>
     {
         "Semua Status",
         "Menunggu",
         "Dikonfirmasi",
-        "Berlangsung",
         "Selesai",
-        "Dibatalkan"
+        "Ditolak",
+        "Dibatalkan",
+        "Tidak Hadir"
     };
+
+    public IList<string> TimeSlots { get; } = CreateTimeSlots();
 
     public ObservableCollection<AdminBooking> FilteredBookings { get; } = new();
 
@@ -33,10 +32,15 @@ public partial class AdminBookingsViewModel : ObservableObject
     public partial string SearchText { get; set; } = string.Empty;
 
     [ObservableProperty]
-    public partial string? SelectedDateFilter { get; set; } = "Semua Tanggal";
+    [NotifyPropertyChangedFor(nameof(DateFilterText))]
+    [NotifyPropertyChangedFor(nameof(HasDateFilter))]
+    public partial DateTime? SelectedDateFilter { get; set; }
 
     [ObservableProperty]
     public partial string? SelectedStatusFilter { get; set; } = "Semua Status";
+
+    [ObservableProperty]
+    public partial bool IsCalendarOpen { get; set; }
 
     [ObservableProperty]
     public partial string ResultsText { get; set; } = string.Empty;
@@ -45,10 +49,39 @@ public partial class AdminBookingsViewModel : ObservableObject
     public partial bool HasActiveFilters { get; set; }
 
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(ShowPendingActions))]
+    [NotifyPropertyChangedFor(nameof(ShowConfirmedActions))]
     public partial AdminBooking? SelectedBooking { get; set; }
 
     [ObservableProperty]
     public partial bool IsDetailOpen { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsRescheduleOpen { get; set; }
+
+    [ObservableProperty]
+    public partial DateTime? RescheduleDate { get; set; }
+
+    [ObservableProperty]
+    public partial string? RescheduleTime { get; set; }
+
+    public DateTime MinimumDate => _allBookings.Min(booking => booking.AppointmentAt).Date;
+
+    public DateTime MaximumDate => _allBookings.Max(booking => booking.AppointmentAt).Date;
+
+    public DateTime RescheduleMinimumDate => DateTime.Today;
+
+    public DateTime RescheduleMaximumDate => DateTime.Today.AddMonths(2);
+
+    public string DateFilterText => SelectedDateFilter is { } date
+        ? date.ToString("dd MMM yyyy", IndonesianCulture)
+        : "Semua Tanggal";
+
+    public bool HasDateFilter => SelectedDateFilter.HasValue;
+
+    public bool ShowPendingActions => SelectedBooking?.Status == BookingStatus.Pending;
+
+    public bool ShowConfirmedActions => SelectedBooking?.Status == BookingStatus.Confirmed;
 
     public AdminBookingsViewModel()
     {
@@ -62,14 +95,35 @@ public partial class AdminBookingsViewModel : ObservableObject
 
     partial void OnSearchTextChanged(string value) => ApplyFilters();
 
-    partial void OnSelectedDateFilterChanged(string? value) => ApplyFilters();
+    partial void OnSelectedDateFilterChanged(DateTime? value) => ApplyFilters();
 
     partial void OnSelectedStatusFilterChanged(string? value) => ApplyFilters();
+
+    partial void OnSelectedBookingChanged(AdminBooking? oldValue, AdminBooking? newValue)
+    {
+        if (oldValue is not null)
+        {
+            oldValue.PropertyChanged -= OnSelectedBookingPropertyChanged;
+        }
+
+        if (newValue is not null)
+        {
+            newValue.PropertyChanged += OnSelectedBookingPropertyChanged;
+        }
+    }
+
+    private void OnSelectedBookingPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(AdminBooking.Status))
+        {
+            OnPropertyChanged(nameof(ShowPendingActions));
+            OnPropertyChanged(nameof(ShowConfirmedActions));
+        }
+    }
 
     private void ApplyFilters()
     {
         var search = SearchText?.Trim() ?? string.Empty;
-        var dateFilter = SelectedDateFilter ?? DateFilters[0];
         var statusFilter = SelectedStatusFilter ?? StatusFilters[0];
 
         IEnumerable<AdminBooking> query = _allBookings;
@@ -84,28 +138,19 @@ public partial class AdminBookingsViewModel : ObservableObject
                 booking.Id.Contains(search, StringComparison.OrdinalIgnoreCase));
         }
 
-        var today = DateTime.Today;
-        var weekStart = GetWeekStart(today);
-
-        query = dateFilter switch
+        if (SelectedDateFilter is { } selectedDate)
         {
-            "Hari Ini" => query.Where(booking => booking.AppointmentAt.Date == today),
-            "Minggu Ini" => query.Where(booking =>
-                booking.AppointmentAt >= weekStart &&
-                booking.AppointmentAt < weekStart.AddDays(7)),
-            "Bulan Ini" => query.Where(booking =>
-                booking.AppointmentAt.Year == today.Year &&
-                booking.AppointmentAt.Month == today.Month),
-            _ => query
-        };
+            query = query.Where(booking => booking.AppointmentAt.Date == selectedDate.Date);
+        }
 
         BookingStatus? status = statusFilter switch
         {
             "Menunggu" => BookingStatus.Pending,
             "Dikonfirmasi" => BookingStatus.Confirmed,
-            "Berlangsung" => BookingStatus.InProgress,
             "Selesai" => BookingStatus.Completed,
+            "Ditolak" => BookingStatus.Rejected,
             "Dibatalkan" => BookingStatus.Cancelled,
+            "Tidak Hadir" => BookingStatus.NoShow,
             _ => null
         };
 
@@ -114,7 +159,9 @@ public partial class AdminBookingsViewModel : ObservableObject
             query = query.Where(booking => booking.Status == status.Value);
         }
 
-        var results = query.ToList();
+        var results = query
+            .OrderByDescending(booking => booking.AppointmentAt)
+            .ToList();
 
         FilteredBookings.Clear();
         foreach (var booking in results)
@@ -125,7 +172,7 @@ public partial class AdminBookingsViewModel : ObservableObject
         ResultsText = $"Menampilkan {results.Count} dari {_allBookings.Count} booking";
         HasActiveFilters =
             !string.IsNullOrWhiteSpace(search) ||
-            dateFilter != DateFilters[0] ||
+            SelectedDateFilter.HasValue ||
             statusFilter != StatusFilters[0];
     }
 
@@ -148,11 +195,195 @@ public partial class AdminBookingsViewModel : ObservableObject
     }
 
     [RelayCommand]
+    private async Task ConfirmBookingAsync()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Pending } booking)
+        {
+            return;
+        }
+
+        if (IsSlotTaken(booking.AppointmentAt, booking))
+        {
+            await ShowInfoAsync(
+                "Slot Tidak Tersedia",
+                "Slot waktu ini sudah dikunci oleh booking lain untuk stylist yang sama.");
+            return;
+        }
+
+        booking.Status = BookingStatus.Confirmed;
+        booking.IsSlotLocked = true;
+        ApplyFilters();
+
+        await ShowInfoAsync(
+            "Booking Dikonfirmasi",
+            $"Jadwal {booking.CustomerName} pada {booking.ScheduleText} telah dikonfirmasi dan slot waktunya dikunci.\n\nPelanggan akan menerima notifikasi.");
+    }
+
+    [RelayCommand]
+    private async Task RejectBookingAsync()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Pending } booking)
+        {
+            return;
+        }
+
+        if (!await ConfirmAsync(
+                "Tolak Booking",
+                $"Tolak booking {booking.CustomerName} pada {booking.ScheduleText}?"))
+        {
+            return;
+        }
+
+        booking.Status = BookingStatus.Rejected;
+        booking.IsSlotLocked = false;
+        ApplyFilters();
+
+        await ShowInfoAsync(
+            "Booking Ditolak",
+            $"Booking {booking.CustomerName} ditolak. Pelanggan akan menerima notifikasi.");
+    }
+
+    [RelayCommand]
+    private async Task CompleteBookingAsync()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Confirmed } booking)
+        {
+            return;
+        }
+
+        if (!await ConfirmAsync(
+                "Selesaikan Booking",
+                $"Tandai booking {booking.CustomerName} sebagai selesai?"))
+        {
+            return;
+        }
+
+        booking.Status = BookingStatus.Completed;
+        booking.IsSlotLocked = false;
+        ApplyFilters();
+
+        await ShowInfoAsync(
+            "Booking Selesai",
+            $"Booking {booking.CustomerName} telah diselesaikan.");
+    }
+
+    [RelayCommand]
+    private async Task CancelBookingAsync()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Confirmed } booking)
+        {
+            return;
+        }
+
+        if (!await ConfirmAsync(
+                "Batalkan Booking",
+                $"Batalkan booking {booking.CustomerName} pada {booking.ScheduleText}?"))
+        {
+            return;
+        }
+
+        booking.Status = BookingStatus.Cancelled;
+        booking.IsSlotLocked = false;
+        ApplyFilters();
+
+        await ShowInfoAsync(
+            "Booking Dibatalkan",
+            $"Booking {booking.CustomerName} dibatalkan. Pelanggan akan menerima notifikasi.");
+    }
+
+    [RelayCommand]
+    private void OpenReschedule()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Confirmed } booking)
+        {
+            return;
+        }
+
+        RescheduleDate = booking.AppointmentAt.Date;
+        RescheduleTime = booking.AppointmentAt.ToString("HH:mm", IndonesianCulture);
+        IsDetailOpen = false;
+        IsRescheduleOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseReschedule()
+    {
+        IsRescheduleOpen = false;
+        IsDetailOpen = SelectedBooking is not null;
+    }
+
+    [RelayCommand]
+    private async Task SaveRescheduleAsync()
+    {
+        if (SelectedBooking is not { Status: BookingStatus.Confirmed } booking)
+        {
+            return;
+        }
+
+        if (RescheduleDate is not { } date || string.IsNullOrWhiteSpace(RescheduleTime))
+        {
+            await ShowInfoAsync("Jadwal Ulang", "Pilih tanggal dan jam terlebih dahulu.");
+            return;
+        }
+
+        if (!TimeSpan.TryParse(RescheduleTime, IndonesianCulture, out var time))
+        {
+            await ShowInfoAsync("Jadwal Ulang", "Format jam tidak valid.");
+            return;
+        }
+
+        var newAppointment = date.Date + time;
+
+        if (newAppointment <= DateTime.Now)
+        {
+            await ShowInfoAsync("Jadwal Ulang", "Pilih tanggal dan jam setelah waktu sekarang.");
+            return;
+        }
+
+        if (IsSlotTaken(newAppointment, booking))
+        {
+            await ShowInfoAsync(
+                "Slot Tidak Tersedia",
+                "Slot waktu tersebut sudah dikunci oleh booking lain. Silakan pilih jam lain.");
+            return;
+        }
+
+        booking.AppointmentAt = newAppointment;
+        booking.IsSlotLocked = true;
+
+        OnPropertyChanged(nameof(MinimumDate));
+        OnPropertyChanged(nameof(MaximumDate));
+
+        IsRescheduleOpen = false;
+        IsDetailOpen = true;
+        ApplyFilters();
+
+        await ShowInfoAsync(
+            "Jadwal Diubah",
+            $"Jadwal {booking.CustomerName} dipindahkan ke {booking.ScheduleText}. Pelanggan akan menerima notifikasi.");
+    }
+
+    [RelayCommand]
     private void ClearFilters()
     {
         SearchText = string.Empty;
-        SelectedDateFilter = DateFilters[0];
+        SelectedDateFilter = null;
         SelectedStatusFilter = StatusFilters[0];
+        IsCalendarOpen = false;
+        IsRescheduleOpen = false;
+    }
+
+    [RelayCommand]
+    private void OpenCalendar() => IsCalendarOpen = true;
+
+    [RelayCommand]
+    private void CloseCalendar() => IsCalendarOpen = false;
+
+    [RelayCommand]
+    private void ClearDateFilter()
+    {
+        SelectedDateFilter = null;
+        IsCalendarOpen = false;
     }
 
     [RelayCommand]
@@ -176,8 +407,32 @@ public partial class AdminBookingsViewModel : ObservableObject
             "Form booking baru akan hadir pada fase berikutnya.");
     }
 
-    private static DateTime GetWeekStart(DateTime date) =>
-        date.AddDays(-(((int)date.DayOfWeek + 6) % 7));
+    private bool IsSlotTaken(DateTime appointment, AdminBooking booking)
+    {
+        var appointmentEnd = appointment.AddMinutes(booking.DurationMinutes);
+
+        return _allBookings.Any(other =>
+            !ReferenceEquals(other, booking) &&
+            other.IsSlotLocked &&
+            other.Status == BookingStatus.Confirmed &&
+            other.StaffName == booking.StaffName &&
+            other.AppointmentAt < appointmentEnd &&
+            appointment < other.AppointmentAt.AddMinutes(other.DurationMinutes));
+    }
+
+    private static List<string> CreateTimeSlots()
+    {
+        var slots = new List<string>();
+        var start = TimeSpan.FromHours(9);
+        var end = TimeSpan.FromHours(19);
+
+        for (var time = start; time <= end; time = time.Add(TimeSpan.FromMinutes(30)))
+        {
+            slots.Add(time.ToString(@"hh\:mm", CultureInfo.InvariantCulture));
+        }
+
+        return slots;
+    }
 
     private static async Task ShowInfoAsync(string title, string message)
     {
@@ -185,5 +440,15 @@ public partial class AdminBookingsViewModel : ObservableObject
         {
             await page.DisplayAlertAsync(title, message, "OK");
         }
+    }
+
+    private static async Task<bool> ConfirmAsync(string title, string message)
+    {
+        if (Shell.Current?.CurrentPage is not Page page)
+        {
+            return false;
+        }
+
+        return await page.DisplayAlertAsync(title, message, "Ya", "Batal");
     }
 }

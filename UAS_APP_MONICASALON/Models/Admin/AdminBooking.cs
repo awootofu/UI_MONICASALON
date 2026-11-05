@@ -1,8 +1,9 @@
 using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace UAS_APP_MONICASALON.Models.Admin;
 
-public class AdminBooking
+public partial class AdminBooking : ObservableObject
 {
     private static readonly CultureInfo IndonesianCulture = CultureInfo.GetCultureInfo("id-ID");
 
@@ -16,11 +17,26 @@ public class AdminBooking
 
     public string StaffName { get; init; } = string.Empty;
 
-    public DateTime AppointmentAt { get; init; }
+    public int DurationMinutes { get; init; }
 
     public decimal Price { get; init; }
 
-    public BookingStatus Status { get; init; }
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(DateText))]
+    [NotifyPropertyChangedFor(nameof(TimeText))]
+    [NotifyPropertyChangedFor(nameof(ScheduleText))]
+    public partial DateTime AppointmentAt { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(StatusText))]
+    public partial BookingStatus Status { get; set; }
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(PaymentStatusText))]
+    public partial PaymentStatus PaymentStatus { get; set; }
+
+    [ObservableProperty]
+    public partial bool IsSlotLocked { get; set; }
 
     public string CustomerInitials =>
         string.Concat(CustomerName
@@ -36,6 +52,13 @@ public class AdminBooking
 
     public string ScheduleText => $"{DateText} · {TimeText}";
 
+    public string DurationText => DurationMinutes switch
+    {
+        < 60 => $"{DurationMinutes} menit",
+        _ when DurationMinutes % 60 == 0 => $"{DurationMinutes / 60} jam",
+        _ => $"{DurationMinutes / 60} jam {DurationMinutes % 60} menit"
+    };
+
     public string StaffText => $"Stylist: {StaffName}";
 
     public string ServiceStaffText => $"{ServiceName} · {StaffName}";
@@ -49,9 +72,17 @@ public class AdminBooking
     {
         BookingStatus.Pending => "Menunggu",
         BookingStatus.Confirmed => "Dikonfirmasi",
-        BookingStatus.InProgress => "Berlangsung",
         BookingStatus.Completed => "Selesai",
+        BookingStatus.Rejected => "Ditolak",
         BookingStatus.Cancelled => "Dibatalkan",
+        BookingStatus.NoShow => "Tidak Hadir",
         _ => string.Empty
+    };
+
+    public string PaymentStatusText => PaymentStatus switch
+    {
+        PaymentStatus.Paid => "Lunas",
+        PaymentStatus.Refunded => "Dikembalikan",
+        _ => "Belum Dibayar"
     };
 }

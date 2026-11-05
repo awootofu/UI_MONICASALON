@@ -23,8 +23,8 @@
                 RowSpacing="12">
 
                 <!-- Search and filters -->
-                <VerticalStackLayout Spacing="10">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                <VerticalStackLayout Spacing="8">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
                         <Border Style="{StaticResource AdminInputShell}">
                             <material:TextField
                                 Title="Cari nama, layanan, atau ID..."
@@ -36,7 +36,7 @@
                                         FontFamily="MaterialOutlined"
                                         Glyph="{x:Static icons:AdminIcons.Search}"
                                         Color="{StaticResource TextSecondary}"
-                                        Size="20" />
+                                        Size="18" />
                                 </material:TextField.Icon>
                             </material:TextField>
                         </Border>
@@ -44,8 +44,8 @@
                         <uranium:ButtonView
                             Grid.Column="1"
                             Style="{StaticResource AdminIconButton}"
-                            WidthRequest="50"
-                            HeightRequest="50"
+                            WidthRequest="42"
+                            HeightRequest="42"
                             StrokeShape="RoundRectangle 12"
                             BackgroundColor="{StaticResource Primary}"
                             StrokeThickness="0"
@@ -53,8 +53,8 @@
                             SemanticProperties.Description="Booking Baru"
                             TappedCommand="{Binding NewBookingCommand}">
                             <Image
-                                WidthRequest="22"
-                                HeightRequest="22"
+                                WidthRequest="18"
+                                HeightRequest="18"
                                 InputTransparent="True"
                                 HorizontalOptions="Center"
                                 VerticalOptions="Center">
@@ -63,37 +63,73 @@
                                         FontFamily="MaterialOutlined"
                                         Glyph="{x:Static icons:AdminIcons.Add}"
                                         Color="{StaticResource OnPrimary}"
-                                        Size="22" />
+                                        Size="18" />
                                 </Image.Source>
                             </Image>
                         </uranium:ButtonView>
                     </Grid>
 
-                    <Grid ColumnDefinitions="*,*" ColumnSpacing="10">
-                        <VerticalStackLayout Spacing="4">
+                    <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                        <VerticalStackLayout Spacing="3">
                             <Label
                                 Text="Tanggal"
                                 Style="{StaticResource AdminFilterLabel}" />
-                            <Border Style="{StaticResource AdminInputShell}">
-                                <material:PickerField
-                                    Title=""
-                                    ItemsSource="{Binding DateFilters}"
-                                    SelectedItem="{Binding SelectedDateFilter, Mode=TwoWay}"
-                                    Style="{StaticResource AdminPickerField}"
-                                    SemanticProperties.Description="Filter tanggal booking" />
-                            </Border>
+                            <uranium:ButtonView
+                                Style="{StaticResource AdminFieldButton}"
+                                SemanticProperties.Description="Filter tanggal booking"
+                                TappedCommand="{Binding OpenCalendarCommand}">
+                                <Grid
+                                    Padding="10,0"
+                                    ColumnDefinitions="Auto,*,Auto"
+                                    ColumnSpacing="6"
+                                    InputTransparent="True">
+                                    <Image
+                                        WidthRequest="15"
+                                        HeightRequest="15"
+                                        VerticalOptions="Center">
+                                        <Image.Source>
+                                            <FontImageSource
+                                                FontFamily="MaterialOutlined"
+                                                Glyph="{x:Static icons:AdminIcons.Calendar}"
+                                                Color="{StaticResource TextSecondary}"
+                                                Size="15" />
+                                        </Image.Source>
+                                    </Image>
+                                    <Label
+                                        Grid.Column="1"
+                                        Text="{Binding DateFilterText}"
+                                        FontSize="12"
+                                        TextColor="{StaticResource TextPrimary}"
+                                        LineBreakMode="TailTruncation"
+                                        MaxLines="1"
+                                        VerticalTextAlignment="Center" />
+                                    <Image
+                                        Grid.Column="2"
+                                        WidthRequest="15"
+                                        HeightRequest="15"
+                                        VerticalOptions="Center">
+                                        <Image.Source>
+                                            <FontImageSource
+                                                FontFamily="MaterialOutlined"
+                                                Glyph="{x:Static icons:AdminIcons.ExpandMore}"
+                                                Color="{StaticResource TextSecondary}"
+                                                Size="15" />
+                                        </Image.Source>
+                                    </Image>
+                                </Grid>
+                            </uranium:ButtonView>
                         </VerticalStackLayout>
 
-                        <VerticalStackLayout Grid.Column="1" Spacing="4">
+                        <VerticalStackLayout Grid.Column="1" Spacing="3">
                             <Label
                                 Text="Status"
                                 Style="{StaticResource AdminFilterLabel}" />
                             <Border Style="{StaticResource AdminInputShell}">
-                                <material:PickerField
-                                    Title=""
+                                <uranium:Dropdown
                                     ItemsSource="{Binding StatusFilters}"
                                     SelectedItem="{Binding SelectedStatusFilter, Mode=TwoWay}"
-                                    Style="{StaticResource AdminPickerField}"
+                                    Placeholder="Pilih status"
+                                    Style="{StaticResource AdminDropdown}"
                                     SemanticProperties.Description="Filter status booking" />
                             </Border>
                         </VerticalStackLayout>
@@ -227,9 +263,11 @@
                                     <Button
                                         Text="Lihat Detail"
                                         Style="{StaticResource AdminSoftButton}"
+                                        HeightRequest="30"
+                                        Padding="14,0"
                                         Command="{Binding BindingContext.ShowDetailCommand, Source={x:Reference BookingsPage}}"
                                         CommandParameter="{Binding .}"
-                                        HorizontalOptions="Fill" />
+                                        HorizontalOptions="End" />
                                 </VerticalStackLayout>
                             </Border>
                         </DataTemplate>
@@ -271,8 +309,74 @@
         </admin:AdminLayout.PageContent>
     </admin:AdminLayout>
 
-    <!-- Booking detail sheet -->
     <uranium:UraniumContentPage.Attachments>
+        <!-- Date filter calendar sheet -->
+        <material:BottomSheetView IsPresented="{Binding IsCalendarOpen, Mode=TwoWay}">
+            <material:BottomSheetView.Header>
+                <BoxView HeightRequest="0" Color="Transparent" />
+            </material:BottomSheetView.Header>
+            <material:BottomSheetView.Triggers>
+                <DataTrigger
+                    TargetType="material:BottomSheetView"
+                    Binding="{Binding IsCalendarOpen}"
+                    Value="False">
+                    <Setter Property="InputTransparent" Value="True" />
+                </DataTrigger>
+            </material:BottomSheetView.Triggers>
+
+            <VerticalStackLayout Padding="16,4,16,16" Spacing="6">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Label
+                        Text="Pilih Tanggal"
+                        Style="{StaticResource AdminSectionTitle}"
+                        FontSize="14"
+                        VerticalTextAlignment="Center" />
+
+                    <uranium:ButtonView
+                        Grid.Column="1"
+                        Style="{StaticResource AdminIconButton}"
+                        WidthRequest="34"
+                        HeightRequest="34"
+                        BackgroundColor="{StaticResource Background}"
+                        StrokeThickness="0"
+                        VerticalOptions="Center"
+                        SemanticProperties.Description="Tutup kalender"
+                        TappedCommand="{Binding CloseCalendarCommand}">
+                        <Image
+                            WidthRequest="17"
+                            HeightRequest="17"
+                            InputTransparent="True"
+                            HorizontalOptions="Center"
+                            VerticalOptions="Center">
+                            <Image.Source>
+                                <FontImageSource
+                                    FontFamily="MaterialOutlined"
+                                    Glyph="{x:Static icons:AdminIcons.Close}"
+                                    Color="{StaticResource TextPrimary}"
+                                    Size="17" />
+                            </Image.Source>
+                        </Image>
+                    </uranium:ButtonView>
+                </Grid>
+
+                <uranium:CalendarView
+                    WidthRequest="270"
+                    HorizontalOptions="Center"
+                    SelectedDate="{Binding SelectedDateFilter, Mode=TwoWay}"
+                    MinimumDate="{Binding MinimumDate}"
+                    MaximumDate="{Binding MaximumDate}"
+                    DateSelected="OnCalendarDateSelected" />
+
+                <Button
+                    Text="Semua Tanggal"
+                    Style="{StaticResource AdminLinkButton}"
+                    Command="{Binding ClearDateFilterCommand}"
+                    IsVisible="{Binding HasDateFilter}"
+                    HorizontalOptions="Center" />
+            </VerticalStackLayout>
+        </material:BottomSheetView>
+
+        <!-- Booking detail sheet -->
         <material:BottomSheetView IsPresented="{Binding IsDetailOpen, Mode=TwoWay}">
             <material:BottomSheetView.Header>
                 <BoxView HeightRequest="0" Color="Transparent" />
@@ -286,50 +390,257 @@
                 </DataTrigger>
             </material:BottomSheetView.Triggers>
 
-            <VerticalStackLayout Padding="20,8,20,24" Spacing="16">
+            <ScrollView MaximumHeightRequest="560">
+                <VerticalStackLayout Padding="16,4,16,16" Spacing="10">
 
-                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="10">
+                        <Border
+                            WidthRequest="44"
+                            HeightRequest="44"
+                            BackgroundColor="{StaticResource Secondary}"
+                            StrokeThickness="0"
+                            StrokeShape="RoundRectangle 22"
+                            VerticalOptions="Center">
+                            <Label
+                                Text="{Binding SelectedBooking.CustomerInitials}"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="13"
+                                FontAttributes="Bold"
+                                TextColor="{StaticResource Primary}"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center" />
+                        </Border>
+
+                        <VerticalStackLayout Grid.Column="1" Spacing="1" VerticalOptions="Center">
+                            <Label
+                                Text="{Binding SelectedBooking.CustomerName}"
+                                FontFamily="OpenSansSemibold"
+                                FontSize="15"
+                                FontAttributes="Bold"
+                                TextColor="{StaticResource TextPrimary}" />
+                            <Label
+                                Text="{Binding SelectedBooking.CustomerPhone}"
+                                FontSize="11.5"
+                                TextColor="{StaticResource TextSecondary}" />
+                        </VerticalStackLayout>
+
+                        <uranium:ButtonView
+                            Grid.Column="2"
+                            Style="{StaticResource AdminIconButton}"
+                            WidthRequest="34"
+                            HeightRequest="34"
+                            BackgroundColor="{StaticResource Background}"
+                            StrokeThickness="0"
+                            VerticalOptions="Center"
+                            SemanticProperties.Description="Tutup detail booking"
+                            TappedCommand="{Binding CloseDetailCommand}">
+                            <Image
+                                WidthRequest="17"
+                                HeightRequest="17"
+                                InputTransparent="True"
+                                HorizontalOptions="Center"
+                                VerticalOptions="Center">
+                                <Image.Source>
+                                    <FontImageSource
+                                        FontFamily="MaterialOutlined"
+                                        Glyph="{x:Static icons:AdminIcons.Close}"
+                                        Color="{StaticResource TextPrimary}"
+                                        Size="17" />
+                                </Image.Source>
+                            </Image>
+                        </uranium:ButtonView>
+                    </Grid>
+
+                    <Label
+                        Text="{Binding SelectedBooking.CustomerMeta}"
+                        Style="{StaticResource AdminCaption}" />
+
                     <Border
-                        WidthRequest="50"
-                        HeightRequest="50"
-                        BackgroundColor="{StaticResource Secondary}"
+                        BackgroundColor="{StaticResource Background}"
                         StrokeThickness="0"
-                        StrokeShape="RoundRectangle 25"
-                        VerticalOptions="Center">
-                        <Label
-                            Text="{Binding SelectedBooking.CustomerInitials}"
-                            FontFamily="OpenSansSemibold"
-                            FontSize="14"
-                            FontAttributes="Bold"
-                            TextColor="{StaticResource Primary}"
-                            HorizontalOptions="Center"
-                            VerticalOptions="Center" />
+                        StrokeShape="RoundRectangle 12"
+                        Padding="12">
+                        <VerticalStackLayout Spacing="8">
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Layanan" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.ServiceName}"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Staf" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.StaffName}"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Jadwal" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label
+                                        Text="{Binding SelectedBooking.ScheduleText}"
+                                        FontFamily="OpenSansSemibold"
+                                        FontSize="12"
+                                        FontAttributes="Bold"
+                                        TextColor="{StaticResource TextPrimary}" />
+                                    <HorizontalStackLayout
+                                        Spacing="4"
+                                        IsVisible="{Binding SelectedBooking.IsSlotLocked}">
+                                        <Image
+                                            WidthRequest="11"
+                                            HeightRequest="11"
+                                            VerticalOptions="Center">
+                                            <Image.Source>
+                                                <FontImageSource
+                                                    FontFamily="MaterialOutlined"
+                                                    Glyph="{x:Static icons:AdminIcons.SlotLocked}"
+                                                    Color="{StaticResource Success}"
+                                                    Size="11" />
+                                            </Image.Source>
+                                        </Image>
+                                        <Label
+                                            Text="Slot waktu terkunci"
+                                            Style="{StaticResource AdminCaption}"
+                                            TextColor="{StaticResource Success}"
+                                            VerticalTextAlignment="Center" />
+                                    </HorizontalStackLayout>
+                                </VerticalStackLayout>
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Durasi" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.DurationText}"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="{StaticResource TextPrimary}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Status" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <admin:StatusBadge
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.StatusText}"
+                                    Status="{Binding SelectedBooking.Status}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Pembayaran" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <admin:PaymentBadge
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.PaymentStatusText}"
+                                    Status="{Binding SelectedBooking.PaymentStatus}" />
+                            </Grid>
+
+                            <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
+                                <Label Text="Harga" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
+                                <Label
+                                    Grid.Column="1"
+                                    Text="{Binding SelectedBooking.PriceText}"
+                                    FontFamily="OpenSansSemibold"
+                                    FontSize="12"
+                                    FontAttributes="Bold"
+                                    TextColor="{StaticResource Primary}" />
+                            </Grid>
+                        </VerticalStackLayout>
                     </Border>
 
-                    <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowPendingActions}">
+                        <Button
+                            Text="Konfirmasi Booking"
+                            Style="{StaticResource AdminPrimaryButton}"
+                            Command="{Binding ConfirmBookingCommand}"
+                            HorizontalOptions="Fill" />
+                        <Button
+                            Text="Tolak Booking"
+                            Style="{StaticResource AdminDangerButton}"
+                            Command="{Binding RejectBookingCommand}"
+                            HorizontalOptions="Fill" />
+                    </VerticalStackLayout>
+
+                    <VerticalStackLayout Spacing="8" IsVisible="{Binding ShowConfirmedActions}">
+                        <Button
+                            Text="Selesaikan Booking"
+                            Style="{StaticResource AdminPrimaryButton}"
+                            Command="{Binding CompleteBookingCommand}"
+                            HorizontalOptions="Fill" />
+                        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                            <Button
+                                Text="Jadwal Ulang"
+                                Style="{StaticResource AdminSecondaryButton}"
+                                Command="{Binding OpenRescheduleCommand}"
+                                HorizontalOptions="Fill" />
+                            <Button
+                                Grid.Column="1"
+                                Text="Batalkan"
+                                Style="{StaticResource AdminDangerButton}"
+                                Command="{Binding CancelBookingCommand}"
+                                HorizontalOptions="Fill" />
+                        </Grid>
+                    </VerticalStackLayout>
+
+                    <Button
+                        Text="Hubungi Pelanggan"
+                        Style="{StaticResource AdminSecondaryButton}"
+                        Command="{Binding ContactCustomerCommand}"
+                        HorizontalOptions="Fill" />
+
+                </VerticalStackLayout>
+            </ScrollView>
+        </material:BottomSheetView>
+
+        <!-- Reschedule sheet -->
+        <material:BottomSheetView
+            IsPresented="{Binding IsRescheduleOpen, Mode=TwoWay}"
+            CloseOnTapOutside="False">
+            <material:BottomSheetView.Header>
+                <BoxView HeightRequest="0" Color="Transparent" />
+            </material:BottomSheetView.Header>
+            <material:BottomSheetView.Triggers>
+                <DataTrigger
+                    TargetType="material:BottomSheetView"
+                    Binding="{Binding IsRescheduleOpen}"
+                    Value="False">
+                    <Setter Property="InputTransparent" Value="True" />
+                </DataTrigger>
+            </material:BottomSheetView.Triggers>
+
+            <VerticalStackLayout Padding="16,4,16,16" Spacing="8">
+                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <VerticalStackLayout Spacing="1" VerticalOptions="Center">
+                        <Label
+                            Text="Jadwal Ulang"
+                            Style="{StaticResource AdminSectionTitle}"
+                            FontSize="14" />
                         <Label
                             Text="{Binding SelectedBooking.CustomerName}"
-                            FontFamily="OpenSansSemibold"
-                            FontSize="16"
-                            FontAttributes="Bold"
-                            TextColor="{StaticResource TextPrimary}" />
-                        <Label
-                            Text="{Binding SelectedBooking.CustomerPhone}"
-                            FontSize="12"
-                            TextColor="{StaticResource TextSecondary}" />
+                            Style="{StaticResource AdminCaption}" />
                     </VerticalStackLayout>
 
                     <uranium:ButtonView
-                        Grid.Column="2"
+                        Grid.Column="1"
                         Style="{StaticResource AdminIconButton}"
+                        WidthRequest="34"
+                        HeightRequest="34"
                         BackgroundColor="{StaticResource Background}"
                         StrokeThickness="0"
                         VerticalOptions="Center"
-                        SemanticProperties.Description="Tutup detail booking"
-                        TappedCommand="{Binding CloseDetailCommand}">
+                        SemanticProperties.Description="Tutup jadwal ulang"
+                        TappedCommand="{Binding CloseRescheduleCommand}">
                         <Image
-                            WidthRequest="19"
-                            HeightRequest="19"
+                            WidthRequest="17"
+                            HeightRequest="17"
                             InputTransparent="True"
                             HorizontalOptions="Center"
                             VerticalOptions="Center">
@@ -338,82 +649,46 @@
                                     FontFamily="MaterialOutlined"
                                     Glyph="{x:Static icons:AdminIcons.Close}"
                                     Color="{StaticResource TextPrimary}"
-                                    Size="19" />
+                                    Size="17" />
                             </Image.Source>
                         </Image>
                     </uranium:ButtonView>
                 </Grid>
 
-                <Label
-                    Text="{Binding SelectedBooking.CustomerMeta}"
-                    Style="{StaticResource AdminCaption}" />
+                <uranium:CalendarView
+                    WidthRequest="270"
+                    HorizontalOptions="Center"
+                    SelectedDate="{Binding RescheduleDate, Mode=TwoWay}"
+                    MinimumDate="{Binding RescheduleMinimumDate}"
+                    MaximumDate="{Binding RescheduleMaximumDate}" />
 
-                <Border
-                    BackgroundColor="{StaticResource Background}"
-                    StrokeThickness="0"
-                    StrokeShape="RoundRectangle 12"
-                    Padding="14">
-                    <VerticalStackLayout Spacing="10">
-                        <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
-                            <Label Text="Layanan" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding SelectedBooking.ServiceName}"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="12"
-                                FontAttributes="Bold"
-                                TextColor="{StaticResource TextPrimary}" />
-                        </Grid>
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                    <Label
+                        Text="Jam"
+                        Style="{StaticResource AdminFilterLabel}"
+                        VerticalOptions="Center" />
+                    <Border Grid.Column="1" Style="{StaticResource AdminInputShell}">
+                        <uranium:Dropdown
+                            ItemsSource="{Binding TimeSlots}"
+                            SelectedItem="{Binding RescheduleTime, Mode=TwoWay}"
+                            Placeholder="Pilih jam"
+                            Style="{StaticResource AdminDropdown}" />
+                    </Border>
+                </Grid>
 
-                        <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
-                            <Label Text="Staf" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding SelectedBooking.StaffName}"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="12"
-                                FontAttributes="Bold"
-                                TextColor="{StaticResource TextPrimary}" />
-                        </Grid>
-
-                        <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
-                            <Label Text="Jadwal" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding SelectedBooking.ScheduleText}"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="12"
-                                FontAttributes="Bold"
-                                TextColor="{StaticResource TextPrimary}" />
-                        </Grid>
-
-                        <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
-                            <Label Text="Status" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
-                            <admin:StatusBadge
-                                Grid.Column="1"
-                                Text="{Binding SelectedBooking.StatusText}"
-                                Status="{Binding SelectedBooking.Status}" />
-                        </Grid>
-
-                        <Grid ColumnDefinitions="100,*" ColumnSpacing="10">
-                            <Label Text="Harga" Style="{StaticResource AdminCaption}" VerticalOptions="Center" />
-                            <Label
-                                Grid.Column="1"
-                                Text="{Binding SelectedBooking.PriceText}"
-                                FontFamily="OpenSansSemibold"
-                                FontSize="12"
-                                FontAttributes="Bold"
-                                TextColor="{StaticResource Primary}" />
-                        </Grid>
-                    </VerticalStackLayout>
-                </Border>
-
-                <Button
-                    Text="Hubungi Pelanggan"
-                    Style="{StaticResource AdminPrimaryButton}"
-                    Command="{Binding ContactCustomerCommand}"
-                    HorizontalOptions="Fill" />
-
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button
+                        Text="Batal"
+                        Style="{StaticResource AdminSecondaryButton}"
+                        Command="{Binding CloseRescheduleCommand}"
+                        HorizontalOptions="Fill" />
+                    <Button
+                        Grid.Column="1"
+                        Text="Simpan Jadwal"
+                        Style="{StaticResource AdminPrimaryButton}"
+                        Command="{Binding SaveRescheduleCommand}"
+                        HorizontalOptions="Fill" />
+                </Grid>
             </VerticalStackLayout>
         </material:BottomSheetView>
     </uranium:UraniumContentPage.Attachments>

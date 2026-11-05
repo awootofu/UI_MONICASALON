@@ -65,7 +65,7 @@ public partial class AdminDashboardViewModel : ObservableObject
                 : $"{pendingToday} menunggu konfirmasi";
 
         RevenueTodayText = FormatRupiah(todayBookings
-            .Where(booking => booking.Status != BookingStatus.Cancelled)
+            .Where(IsCountedBooking)
             .Sum(booking => booking.Price));
 
         PendingBookingsText = pendingBookings.ToString(IndonesianCulture);
@@ -80,7 +80,7 @@ public partial class AdminDashboardViewModel : ObservableObject
             .Where(booking =>
                 booking.AppointmentAt >= weekStart &&
                 booking.AppointmentAt < weekEnd &&
-                booking.Status != BookingStatus.Cancelled)
+                IsCountedBooking(booking))
             .ToList();
 
         var maxCount = weeklyBookings.Count == 0
@@ -118,6 +118,9 @@ public partial class AdminDashboardViewModel : ObservableObject
     {
         await Shell.Current.GoToAsync(nameof(AdminBookingsPage));
     }
+
+    private static bool IsCountedBooking(AdminBooking booking) =>
+        booking.Status is not (BookingStatus.Cancelled or BookingStatus.Rejected or BookingStatus.NoShow);
 
     private static DateTime GetWeekStart(DateTime date) =>
         date.AddDays(-(((int)date.DayOfWeek + 6) % 7));

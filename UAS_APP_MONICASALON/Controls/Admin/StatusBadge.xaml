@@ -22,20 +22,26 @@
             <DataTrigger
                 TargetType="Border"
                 Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
-                Value="{x:Static models:BookingStatus.InProgress}">
-                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
-            </DataTrigger>
-            <DataTrigger
-                TargetType="Border"
-                Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
                 Value="{x:Static models:BookingStatus.Completed}">
                 <Setter Property="BackgroundColor" Value="{StaticResource SuccessContainer}" />
             </DataTrigger>
             <DataTrigger
                 TargetType="Border"
                 Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
-                Value="{x:Static models:BookingStatus.Cancelled}">
+                Value="{x:Static models:BookingStatus.Rejected}">
                 <Setter Property="BackgroundColor" Value="{StaticResource ErrorContainer}" />
+            </DataTrigger>
+            <DataTrigger
+                TargetType="Border"
+                Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
+                Value="{x:Static models:BookingStatus.Cancelled}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Outline}" />
+            </DataTrigger>
+            <DataTrigger
+                TargetType="Border"
+                Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
+                Value="{x:Static models:BookingStatus.NoShow}">
+                <Setter Property="BackgroundColor" Value="{StaticResource Secondary}" />
             </DataTrigger>
         </Border.Triggers>
 
@@ -56,20 +62,26 @@
                 <DataTrigger
                     TargetType="Label"
                     Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
-                    Value="{x:Static models:BookingStatus.InProgress}">
-                    <Setter Property="TextColor" Value="{StaticResource Primary}" />
-                </DataTrigger>
-                <DataTrigger
-                    TargetType="Label"
-                    Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
                     Value="{x:Static models:BookingStatus.Completed}">
                     <Setter Property="TextColor" Value="{StaticResource Success}" />
                 </DataTrigger>
                 <DataTrigger
                     TargetType="Label"
                     Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
-                    Value="{x:Static models:BookingStatus.Cancelled}">
+                    Value="{x:Static models:BookingStatus.Rejected}">
                     <Setter Property="TextColor" Value="{StaticResource Error}" />
+                </DataTrigger>
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
+                    Value="{x:Static models:BookingStatus.Cancelled}">
+                    <Setter Property="TextColor" Value="{StaticResource TextSecondary}" />
+                </DataTrigger>
+                <DataTrigger
+                    TargetType="Label"
+                    Binding="{Binding Status, Source={x:Reference BadgeRoot}}"
+                    Value="{x:Static models:BookingStatus.NoShow}">
+                    <Setter Property="TextColor" Value="{StaticResource PrimaryDark}" />
                 </DataTrigger>
             </Label.Triggers>
         </Label>
