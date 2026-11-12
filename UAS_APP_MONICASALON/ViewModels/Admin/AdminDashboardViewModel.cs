@@ -51,7 +51,7 @@ public partial class AdminDashboardViewModel : ObservableObject
 
     public AdminDashboardViewModel()
     {
-        var bookings = AdminMockData.CreateBookings();
+        var bookings = AdminBookingStore.All;
         var today = DateTime.Today;
         var todayBookings = bookings.Where(booking => booking.AppointmentAt.Date == today).ToList();
         var pendingToday = todayBookings.Count(booking => booking.Status == BookingStatus.Pending);

@@ -8,7 +8,8 @@
     <Grid
         BackgroundColor="Transparent"
         Padding="4,2"
-        SemanticProperties.Description="{Binding Title, Source={x:Reference NavRoot}}">
+        SemanticProperties.Description="{Binding ScreenReaderText, Source={x:Reference NavRoot}}"
+        SemanticProperties.Hint="Ketuk dua kali untuk membuka halaman ini">
         <Grid.GestureRecognizers>
             <TapGestureRecognizer Tapped="OnTapped" />
         </Grid.GestureRecognizers>
@@ -17,7 +18,8 @@
             Spacing="2"
             HorizontalOptions="Center"
             VerticalOptions="Center"
-            InputTransparent="True">
+            InputTransparent="True"
+            AutomationProperties.IsInAccessibleTree="False">
             <Label
                 Text="{Binding IconGlyph, Source={x:Reference NavRoot}}"
                 FontFamily="MaterialOutlined"

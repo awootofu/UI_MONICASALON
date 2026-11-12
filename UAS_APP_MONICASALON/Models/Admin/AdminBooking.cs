@@ -17,6 +17,9 @@ public partial class AdminBooking : ObservableObject
 
     public string StaffName { get; init; } = string.Empty;
 
+    /// <summary>Free-form admin note. Added for the "Booking Baru" form; empty for mock rows.</summary>
+    public string Notes { get; init; } = string.Empty;
+
     public int DurationMinutes { get; init; }
 
     public decimal Price { get; init; }
@@ -85,4 +88,21 @@ public partial class AdminBooking : ObservableObject
         PaymentStatus.Refunded => "Dikembalikan",
         _ => "Belum Dibayar"
     };
+
+    public bool HasNotes => !string.IsNullOrWhiteSpace(Notes);
+
+    public string NotesText => HasNotes ? Notes : "Tidak ada catatan";
+
+    public string StaffIconText => $"Stylist {StaffName}";
+
+    /// <summary>
+    /// Single screen-reader sentence for a booking card, so assistive tech reads
+    /// one booking per swipe instead of eight separate labels.
+    /// </summary>
+    public string ScreenReaderText =>
+        $"Booking {Id}, {CustomerName}, {ServiceName}, stylist {StaffName}, " +
+        $"{ScheduleText}, durasi {DurationText}, harga {PriceText}, status {StatusText}, " +
+        $"pembayaran {PaymentStatusText}";
+
+    public string ScreenReaderHint => "Ketuk dua kali untuk membuka detail booking.";
 }

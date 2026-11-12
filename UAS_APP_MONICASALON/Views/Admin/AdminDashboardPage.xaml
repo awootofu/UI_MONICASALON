@@ -37,6 +37,8 @@
                                 Text="Kelola Booking"
                                 Style="{StaticResource AdminPrimaryButton}"
                                 Command="{Binding OpenBookingsCommand}"
+                                SemanticProperties.Description="Kelola booking, buka halaman Booking"
+                                SemanticProperties.Hint="Ketuk dua kali untuk membuka daftar booking"
                                 HorizontalOptions="Fill"
                                 Margin="0,4,0,0" />
                         </VerticalStackLayout>
@@ -109,7 +111,8 @@
                                                         StrokeThickness="0"
                                                         StrokeShape="RoundRectangle 7"
                                                         HorizontalOptions="Center"
-                                                        VerticalOptions="End">
+                                                        VerticalOptions="End"
+                                                        AutomationProperties.IsInAccessibleTree="False">
                                                         <Border.Triggers>
                                                             <DataTrigger
                                                                 TargetType="Border"
@@ -220,14 +223,16 @@
                                             <Grid
                                                 ColumnDefinitions="Auto,*,Auto"
                                                 ColumnSpacing="10"
-                                                Padding="0,8">
+                                                Padding="0,8"
+                                                SemanticProperties.Description="{Binding ScreenReaderText}">
                                                 <Border
                                                     WidthRequest="32"
                                                     HeightRequest="32"
                                                     BackgroundColor="{StaticResource Secondary}"
                                                     StrokeThickness="0"
                                                     StrokeShape="RoundRectangle 16"
-                                                    VerticalOptions="Center">
+                                                    VerticalOptions="Center"
+                                                    AutomationProperties.IsInAccessibleTree="False">
                                                     <Label
                                                         Text="{Binding CustomerInitials}"
                                                         FontFamily="OpenSansSemibold"
@@ -241,7 +246,8 @@
                                                 <VerticalStackLayout
                                                     Grid.Column="1"
                                                     Spacing="1"
-                                                    VerticalOptions="Center">
+                                                    VerticalOptions="Center"
+                                                    AutomationProperties.IsInAccessibleTree="False">
                                                     <Label
                                                         Text="{Binding CustomerName}"
                                                         Style="{StaticResource AdminCellTitle}"
@@ -258,11 +264,13 @@
                                                     Grid.Column="2"
                                                     Spacing="4"
                                                     HorizontalOptions="End"
-                                                    VerticalOptions="Center">
+                                                    VerticalOptions="Center"
+                                                    AutomationProperties.IsInAccessibleTree="False">
                                                     <admin:StatusBadge
                                                         Text="{Binding StatusText}"
                                                         Status="{Binding Status}"
-                                                        HorizontalOptions="End" />
+                                                        HorizontalOptions="End"
+                                                        AutomationProperties.IsInAccessibleTree="False" />
                                                     <Label
                                                         Text="{Binding PriceText}"
                                                         FontFamily="OpenSansSemibold"
@@ -276,7 +284,8 @@
                                             <BoxView
                                                 Grid.Row="1"
                                                 HeightRequest="1"
-                                                BackgroundColor="{StaticResource Outline}" />
+                                                BackgroundColor="{StaticResource Outline}"
+                                                AutomationProperties.IsInAccessibleTree="False" />
                                         </Grid>
                                     </DataTemplate>
                                 </BindableLayout.ItemTemplate>

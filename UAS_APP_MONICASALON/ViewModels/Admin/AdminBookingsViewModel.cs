@@ -4,6 +4,7 @@ using System.Globalization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using UAS_APP_MONICASALON.Models.Admin;
+using UAS_APP_MONICASALON.Views.Admin;
 
 namespace UAS_APP_MONICASALON.ViewModels.Admin;
 
@@ -36,11 +37,16 @@ public partial class AdminBookingsViewModel : ObservableObject
     [NotifyPropertyChangedFor(nameof(HasDateFilter))]
     public partial DateTime? SelectedDateFilter { get; set; }
 
+    /// <summary>
+    /// What the date filter field shows. A DatePicker always has a value, so the
+    /// nullable <see cref="SelectedDateFilter"/> stays the source of truth for
+    /// "Semua Tanggal".
+    /// </summary>
     [ObservableProperty]
-    public partial string? SelectedStatusFilter { get; set; } = "Semua Status";
+    public partial DateTime DateFilterInput { get; set; } = DateTime.Today;
 
     [ObservableProperty]
-    public partial bool IsCalendarOpen { get; set; }
+    public partial string? SelectedStatusFilter { get; set; } = "Semua Status";
 
     [ObservableProperty]
     public partial string ResultsText { get; set; } = string.Empty;
@@ -60,7 +66,7 @@ public partial class AdminBookingsViewModel : ObservableObject
     public partial bool IsRescheduleOpen { get; set; }
 
     [ObservableProperty]
-    public partial DateTime? RescheduleDate { get; set; }
+    public partial DateTime RescheduleDateInput { get; set; } = DateTime.Today;
 
     [ObservableProperty]
     public partial string? RescheduleTime { get; set; }
@@ -85,8 +91,8 @@ public partial class AdminBookingsViewModel : ObservableObject
 
     public AdminBookingsViewModel()
     {
-        _allBookings = AdminMockData
-            .CreateBookings()
+        // Shared store so a booking created on the "Booking Baru" page shows up here.
+        _allBookings = AdminBookingStore.All
             .OrderByDescending(booking => booking.AppointmentAt)
             .ToList();
 
@@ -96,6 +102,8 @@ public partial class AdminBookingsViewModel : ObservableObject
     partial void OnSearchTextChanged(string value) => ApplyFilters();
 
     partial void OnSelectedDateFilterChanged(DateTime? value) => ApplyFilters();
+
+    partial void OnDateFilterInputChanged(DateTime value) => SelectedDateFilter = value;
 
     partial void OnSelectedStatusFilterChanged(string? value) => ApplyFilters();
 
@@ -299,7 +307,7 @@ public partial class AdminBookingsViewModel : ObservableObject
             return;
         }
 
-        RescheduleDate = booking.AppointmentAt.Date;
+        RescheduleDateInput = booking.AppointmentAt.Date;
         RescheduleTime = booking.AppointmentAt.ToString("HH:mm", IndonesianCulture);
         IsDetailOpen = false;
         IsRescheduleOpen = true;
@@ -320,7 +328,7 @@ public partial class AdminBookingsViewModel : ObservableObject
             return;
         }
 
-        if (RescheduleDate is not { } date || string.IsNullOrWhiteSpace(RescheduleTime))
+        if (string.IsNullOrWhiteSpace(RescheduleTime))
         {
             await ShowInfoAsync("Jadwal Ulang", "Pilih tanggal dan jam terlebih dahulu.");
             return;
@@ -332,7 +340,7 @@ public partial class AdminBookingsViewModel : ObservableObject
             return;
         }
 
-        var newAppointment = date.Date + time;
+        var newAppointment = RescheduleDateInput.Date + time;
 
         if (newAppointment <= DateTime.Now)
         {
@@ -369,22 +377,11 @@ public partial class AdminBookingsViewModel : ObservableObject
         SearchText = string.Empty;
         SelectedDateFilter = null;
         SelectedStatusFilter = StatusFilters[0];
-        IsCalendarOpen = false;
         IsRescheduleOpen = false;
     }
 
     [RelayCommand]
-    private void OpenCalendar() => IsCalendarOpen = true;
-
-    [RelayCommand]
-    private void CloseCalendar() => IsCalendarOpen = false;
-
-    [RelayCommand]
-    private void ClearDateFilter()
-    {
-        SelectedDateFilter = null;
-        IsCalendarOpen = false;
-    }
+    private void ClearDateFilter() => SelectedDateFilter = null;
 
     [RelayCommand]
     private async Task ContactCustomerAsync()
@@ -402,9 +399,19 @@ public partial class AdminBookingsViewModel : ObservableObject
     [RelayCommand]
     private async Task NewBookingAsync()
     {
-        await ShowInfoAsync(
-            "Booking Baru",
-            "Form booking baru akan hadir pada fase berikutnya.");
+        await Shell.Current.GoToAsync(nameof(AdminCreateBookingPage));
+    }
+
+    [RelayCommand]
+    private async Task OpenFullDetailAsync()
+    {
+        if (SelectedBooking is not { } booking)
+        {
+            return;
+        }
+
+        IsDetailOpen = false;
+        await Shell.Current.GoToAsync($"{nameof(AdminBookingDetailsPage)}?id={booking.Id}");
     }
 
     private bool IsSlotTaken(DateTime appointment, AdminBooking booking)

@@ -20,7 +20,8 @@
                     HeightRequest="34"
                     BackgroundColor="{StaticResource Primary}"
                     StrokeThickness="0"
-                    StrokeShape="RoundRectangle 10">
+                    StrokeShape="RoundRectangle 10"
+                    AutomationProperties.IsInAccessibleTree="False">
                     <Image
                         WidthRequest="19"
                         HeightRequest="19"
@@ -59,7 +60,8 @@
                     BackgroundColor="{StaticResource Secondary}"
                     StrokeThickness="0"
                     StrokeShape="RoundRectangle 16"
-                    VerticalOptions="Center">
+                    VerticalOptions="Center"
+                    AutomationProperties.IsInAccessibleTree="False">
                     <Label
                         Text="M"
                         FontFamily="OpenSansSemibold"
@@ -102,8 +104,15 @@
                     Text="{Binding PageTitle, Source={x:Reference LayoutRoot}}"
                     Style="{StaticResource AdminPageTitle}" />
 
-                <HorizontalStackLayout Spacing="4" Margin="0,4,0,0">
-                    <Image WidthRequest="11" HeightRequest="11" VerticalOptions="Center">
+                <HorizontalStackLayout
+                    Spacing="4"
+                    Margin="0,4,0,0"
+                    SemanticProperties.Description="{Binding TodayText, Source={x:Reference LayoutRoot}}">
+                    <Image
+                        WidthRequest="11"
+                        HeightRequest="11"
+                        VerticalOptions="Center"
+                        AutomationProperties.IsInAccessibleTree="False">
                         <Image.Source>
                             <FontImageSource
                                 FontFamily="MaterialOutlined"
@@ -116,7 +125,8 @@
                         Text="{Binding TodayText, Source={x:Reference LayoutRoot}}"
                         FontSize="10"
                         TextColor="{StaticResource TextSecondary}"
-                        VerticalTextAlignment="Center" />
+                        VerticalTextAlignment="Center"
+                        AutomationProperties.IsInAccessibleTree="False" />
                 </HorizontalStackLayout>
             </VerticalStackLayout>
         </Grid>
@@ -155,8 +165,9 @@
 
                 <admin:AdminNavigationItem
                     Grid.Column="2"
-                    Title="Customers"
-                    IconGlyph="{x:Static icons:AdminIcons.Customers}"
+                    Title="Kasir"
+                    IconGlyph="{x:Static icons:AdminIcons.Cashier}"
+                    Route="CashierPage"
                     Command="{Binding NavigateCommand, Source={x:Reference LayoutRoot}}" />
 
                 <admin:AdminNavigationItem

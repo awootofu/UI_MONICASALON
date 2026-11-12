@@ -8,7 +8,8 @@ public partial class AdminNavigationItem : ContentView
         nameof(Title),
         typeof(string),
         typeof(AdminNavigationItem),
-        string.Empty);
+        string.Empty,
+        propertyChanged: OnAccessibilityInputChanged);
 
     public static readonly BindableProperty IconGlyphProperty = BindableProperty.Create(
         nameof(IconGlyph),
@@ -20,22 +21,35 @@ public partial class AdminNavigationItem : ContentView
         nameof(Route),
         typeof(string),
         typeof(AdminNavigationItem),
-        string.Empty);
+        string.Empty,
+        propertyChanged: OnAccessibilityInputChanged);
 
     public static readonly BindableProperty IsActiveProperty = BindableProperty.Create(
         nameof(IsActive),
         typeof(bool),
         typeof(AdminNavigationItem),
-        false);
+        false,
+        propertyChanged: OnAccessibilityInputChanged);
 
     public static readonly BindableProperty CommandProperty = BindableProperty.Create(
         nameof(Command),
         typeof(ICommand),
         typeof(AdminNavigationItem));
 
+    /// <summary>
+    /// Screen-reader label for the tab. Includes the active state and whether the
+    /// tab already has a page, so assistive tech does not announce a dead end.
+    /// </summary>
+    public static readonly BindableProperty ScreenReaderTextProperty = BindableProperty.Create(
+        nameof(ScreenReaderText),
+        typeof(string),
+        typeof(AdminNavigationItem),
+        string.Empty);
+
     public AdminNavigationItem()
     {
         InitializeComponent();
+        UpdateScreenReaderText();
     }
 
     public string Title
@@ -66,6 +80,32 @@ public partial class AdminNavigationItem : ContentView
     {
         get => (ICommand?)GetValue(CommandProperty);
         set => SetValue(CommandProperty, value);
+    }
+
+    public string ScreenReaderText
+    {
+        get => (string)GetValue(ScreenReaderTextProperty);
+        private set => SetValue(ScreenReaderTextProperty, value);
+    }
+
+    private static void OnAccessibilityInputChanged(BindableObject bindable, object oldValue, object newValue) =>
+        ((AdminNavigationItem)bindable).UpdateScreenReaderText();
+
+    private void UpdateScreenReaderText()
+    {
+        if (string.IsNullOrWhiteSpace(Title))
+        {
+            ScreenReaderText = string.Empty;
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(Route))
+        {
+            ScreenReaderText = $"{Title}, halaman belum tersedia";
+            return;
+        }
+
+        ScreenReaderText = IsActive ? $"{Title}, halaman aktif" : Title;
     }
 
     private void OnTapped(object? sender, TappedEventArgs e)
